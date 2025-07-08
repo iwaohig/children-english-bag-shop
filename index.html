@@ -560,13 +560,19 @@
         }
 
         async function confirmPurchase() {
-            if (!selectedProduct || !currentUser) return;
+            if (!selectedProduct || !currentUser) {
+                console.error('購入データが不正:', { selectedProduct, currentUser });
+                alert('購入データが不正です。ページを再読み込みしてください。');
+                return;
+            }
             
             try {
                 // 購入ボタンを無効化
                 const button = document.querySelector(`button[onclick="openPurchaseModal('${selectedProduct.id}')"]`);
-                button.disabled = true;
-                button.textContent = '処理中...';
+                if (button) {
+                    button.disabled = true;
+                    button.textContent = '処理中...';
+                }
                 
                 // 購入データを準備
                 const purchaseData = {
@@ -579,8 +585,11 @@
                     status: 'completed'
                 };
                 
-                // 購入API呼び出し（実装予定）
-                await submitPurchase(purchaseData);
+                console.log('購入データ送信:', purchaseData);
+                
+                // 購入API呼び出し
+                const result = await submitPurchase(purchaseData);
+                console.log('購入API成功:', result);
                 
                 // モーダルを閉じて成功モーダルを表示
                 closePurchaseModal();
@@ -590,8 +599,21 @@
                 addPurchaseToHistory(purchaseData);
                 
             } catch (error) {
-                console.error('購入エラー:', error);
-                alert('購入処理中にエラーが発生しました。もう一度お試しください。');
+                console.error('購入エラー詳細:', error);
+                
+                let errorMessage = '購入処理中にエラーが発生しました。';
+                if (error.message) {
+                    errorMessage += '\n\n詳細: ' + error.message;
+                }
+                if (error.status) {
+                    errorMessage += '\nステータス: ' + error.status;
+                }
+                
+                alert(errorMessage);
+                
+                // モーダルを閉じる
+                closePurchaseModal();
+                
             } finally {
                 // ボタンを元に戻す
                 const button = document.querySelector(`button[onclick="openPurchaseModal('${selectedProduct.id}')"]`);
@@ -606,19 +628,50 @@
             // 購入APIエンドポイント
             const apiEndpoint = 'https://im1swit6p3.execute-api.ap-northeast-1.amazonaws.com/prod/purchase';
             
-            const response = await fetch(apiEndpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(purchaseData)
-            });
+            console.log('API送信開始:', apiEndpoint);
+            console.log('送信データ:', purchaseData);
             
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            try {
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(purchaseData)
+                });
+                
+                console.log('APIレスポンス:', response.status, response.statusText);
+                
+                if (!response.ok) {
+                    // レスポンスボディを取得してエラー詳細を確認
+                    let errorText = '';
+                    try {
+                        const errorData = await response.json();
+                        errorText = errorData.message || errorData.error || JSON.stringify(errorData);
+                    } catch (e) {
+                        errorText = await response.text();
+                    }
+                    
+                    console.error('API エラーレスポンス:', errorText);
+                    const error = new Error(errorText || response.statusText);
+                    error.status = response.status;
+                    throw error;
+                }
+                
+                const result = await response.json();
+                console.log('API成功レスポンス:', result);
+                return result;
+                
+            } catch (error) {
+                console.error('API通信エラー:', error);
+                
+                // ネットワークエラーの場合
+                if (!error.status) {
+                    error.message = 'ネットワークエラー: サーバーに接続できません。インターネット接続を確認してください。';
+                }
+                
+                throw error;
             }
-            
-            return await response.json();
         }
 
         function closeSuccessModal() {
