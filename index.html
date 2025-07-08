@@ -474,8 +474,16 @@
                 console.log('ユーザー情報取得中...');
                 const profile = await woff.getProfile();
                 console.log('ユーザー情報取得成功:', profile);
-                currentUser = profile;
-                displayUserInfo(profile);
+                
+                // ユーザー情報の補完（emailが無い場合の対応）
+                currentUser = {
+                    domainId: profile.domainId,
+                    userId: profile.userId,
+                    displayName: profile.displayName || 'ユーザー',
+                    email: profile.email || `${profile.userId}@${profile.domainId || 'works.com'}`
+                };
+                console.log('補完後のユーザー情報:', currentUser);
+                displayUserInfo(currentUser);
                 
                 // 商品表示
                 displayProducts();
@@ -489,9 +497,12 @@
                 
                 // エラー時はダミーデータで表示（デモ用）
                 currentUser = {
+                    domainId: 'demo-domain',
+                    userId: 'demo-user',
                     displayName: 'デモユーザー',
                     email: 'demo@works-english.com'
                 };
+                console.log('デモユーザー情報:', currentUser);
                 displayUserInfo(currentUser);
                 displayProducts();
                 
@@ -579,13 +590,22 @@
                     productId: selectedProduct.id,
                     productName: selectedProduct.name,
                     price: selectedProduct.price,
-                    userDisplayName: currentUser.displayName,
-                    userEmail: currentUser.email,
+                    userDisplayName: currentUser.displayName || 'ユーザー',
+                    userEmail: currentUser.email || `user@example.com`,
                     purchaseDate: new Date().toISOString(),
                     status: 'completed'
                 };
                 
                 console.log('購入データ送信:', purchaseData);
+                
+                // 必須フィールドの検証
+                const requiredFields = ['productId', 'productName', 'price', 'userDisplayName', 'userEmail'];
+                for (const field of requiredFields) {
+                    if (!purchaseData[field]) {
+                        throw new Error(`必須フィールドが不足: ${field} = "${purchaseData[field]}"`);
+                    }
+                }
+                console.log('購入データ検証完了');
                 
                 // 購入API呼び出し
                 const result = await submitPurchase(purchaseData);
