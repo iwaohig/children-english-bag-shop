@@ -696,6 +696,20 @@
 
         function closeSuccessModal() {
             document.getElementById('successModal').style.display = 'none';
+            
+            // WOFF環境内の場合はアプリを終了
+            if (typeof woff !== 'undefined' && woff.isInClient()) {
+                console.log('WOFFアプリを終了します');
+                try {
+                    woff.closeWindow();
+                } catch (error) {
+                    console.error('WOFF終了エラー:', error);
+                    // エラーの場合はアラートを表示
+                    alert('購入が完了しました。手動でアプリを閉じてください。');
+                }
+            } else {
+                console.log('外部ブラウザ環境のためWOFFアプリを終了しません');
+            }
         }
 
         async function loadPurchaseHistory() {
