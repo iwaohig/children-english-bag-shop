@@ -424,6 +424,17 @@
                     }
                 });
 
+                // WOFF初期化
+                await woff.init({
+                    woffId: 'ZA6K3pOTK1amAQ0di7QJng'
+                });
+
+                // 外部ブラウザの場合のログイン処理
+                if (!woff.isInClient() && !woff.isLoggedIn()) {
+                    woff.login();
+                    return; // ログイン後に再度リダイレクトされるため、ここで処理を終了
+                }
+
                 // ユーザー情報取得
                 const profile = await woff.getProfile();
                 currentUser = profile;
