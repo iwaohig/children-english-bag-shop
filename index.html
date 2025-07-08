@@ -592,6 +592,7 @@
                     price: selectedProduct.price,
                     userDisplayName: currentUser.displayName || 'ユーザー',
                     userEmail: currentUser.email || `user@example.com`,
+                    userId: currentUser.userId || currentUser.email.split('@')[0],
                     purchaseDate: new Date().toISOString(),
                     status: 'completed'
                 };
