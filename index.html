@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>レッスンバッグ販売 - ワークス英語教室</title>
     <!-- WOFF SDK -->
-    <script src="https://static.worksmobile.net/static/wm/woff/edge/3/sdk.js"></script>
+    <script charset="utf-8" src="https://static.worksmobile.net/static/wm/woff/edge/3.7.1/sdk.js" 
+            onerror="console.error('WOFF SDK読み込み失敗'); window.woffSdkLoadError = true;"
+            onload="console.log('WOFF SDK読み込み成功'); window.woffSdkLoaded = true;"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -414,21 +416,38 @@
             try {
                 // WOFF SDKの読み込み確認
                 await new Promise((resolve, reject) => {
+                    // SDK読み込みエラーをチェック
+                    if (window.woffSdkLoadError) {
+                        reject(new Error('WOFF SDK script load failed'));
+                        return;
+                    }
+                    
+                    // SDK読み込み済みの場合
+                    if (window.woffSdkLoaded && typeof woff !== 'undefined') {
+                        console.log('WOFF SDK既に読み込み済み');
+                        resolve();
+                        return;
+                    }
+                    
                     let attempts = 0;
-                    const maxAttempts = 50; // 5秒間試行
+                    const maxAttempts = 30; // 3秒間試行
                     
                     const checkWoff = setInterval(() => {
                         attempts++;
                         console.log(`WOFF SDK確認試行 ${attempts}/${maxAttempts}`);
                         
-                        if (typeof woff !== 'undefined') {
+                        if (window.woffSdkLoadError) {
+                            console.error('WOFF SDK読み込みエラー検出');
+                            clearInterval(checkWoff);
+                            reject(new Error('WOFF SDK script failed to load'));
+                        } else if (typeof woff !== 'undefined') {
                             console.log('WOFF SDK読み込み完了');
                             clearInterval(checkWoff);
                             resolve();
                         } else if (attempts >= maxAttempts) {
                             console.log('WOFF SDK読み込みタイムアウト');
                             clearInterval(checkWoff);
-                            reject(new Error('WOFF SDK load timeout'));
+                            reject(new Error('WOFF SDK load timeout - script may not be loading'));
                         }
                     }, 100);
                 });
