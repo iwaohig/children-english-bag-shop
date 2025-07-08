@@ -409,34 +409,52 @@
         });
 
         async function initializeWOFF() {
+            console.log('WOFF初期化開始...');
+            
             try {
-                // WOFF初期化を待機
-                await new Promise(resolve => {
-                    if (typeof woff !== 'undefined') {
-                        resolve();
-                    } else {
-                        const checkWoff = setInterval(() => {
-                            if (typeof woff !== 'undefined') {
-                                clearInterval(checkWoff);
-                                resolve();
-                            }
-                        }, 100);
-                    }
+                // WOFF SDKの読み込み確認
+                await new Promise((resolve, reject) => {
+                    let attempts = 0;
+                    const maxAttempts = 50; // 5秒間試行
+                    
+                    const checkWoff = setInterval(() => {
+                        attempts++;
+                        console.log(`WOFF SDK確認試行 ${attempts}/${maxAttempts}`);
+                        
+                        if (typeof woff !== 'undefined') {
+                            console.log('WOFF SDK読み込み完了');
+                            clearInterval(checkWoff);
+                            resolve();
+                        } else if (attempts >= maxAttempts) {
+                            console.log('WOFF SDK読み込みタイムアウト');
+                            clearInterval(checkWoff);
+                            reject(new Error('WOFF SDK load timeout'));
+                        }
+                    }, 100);
                 });
 
+                console.log('WOFF初期化実行中...');
                 // WOFF初期化
                 await woff.init({
                     woffId: 'ZA6K3pOTK1amAQ0di7QJng'
                 });
+                console.log('WOFF初期化成功');
+
+                // 実行環境確認
+                const isInClient = woff.isInClient();
+                console.log('WOFF環境:', isInClient ? 'LINE WORKS内' : '外部ブラウザ');
 
                 // 外部ブラウザの場合のログイン処理
-                if (!woff.isInClient() && !woff.isLoggedIn()) {
+                if (!isInClient && !woff.isLoggedIn()) {
+                    console.log('外部ブラウザでログインが必要');
                     woff.login();
-                    return; // ログイン後に再度リダイレクトされるため、ここで処理を終了
+                    return;
                 }
 
                 // ユーザー情報取得
+                console.log('ユーザー情報取得中...');
                 const profile = await woff.getProfile();
+                console.log('ユーザー情報取得成功:', profile);
                 currentUser = profile;
                 displayUserInfo(profile);
                 
@@ -448,13 +466,20 @@
                 
             } catch (error) {
                 console.error('WOFF初期化エラー:', error);
-                // WOFFエラー時はダミーデータで表示
+                console.log('フォールバックモードで動作します');
+                
+                // エラー時はダミーデータで表示（デモ用）
                 currentUser = {
-                    displayName: 'ゲストユーザー',
-                    email: 'guest@example.com'
+                    displayName: 'デモユーザー',
+                    email: 'demo@works-english.com'
                 };
                 displayUserInfo(currentUser);
                 displayProducts();
+                
+                // エラー通知を表示
+                setTimeout(() => {
+                    alert('WOFF初期化エラーが発生しました。デモモードで動作しています。\n\nエラー: ' + error.message);
+                }, 1000);
             }
         }
 
