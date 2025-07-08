@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>レッスンバッグ販売 - ワークス英語教室</title>
+    <!-- WOFF SDK -->
+    <script src="https://static.worksmobile.net/static/wm/woff/edge/3/sdk.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #333;
+            background-color: #f8f9fa;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #00c3f7 0%, #0099cc 100%);
+            color: white;
+            padding: 16px 0;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .user-info {
+            background: white;
+            padding: 16px;
+            margin: 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00c3f7, #0099cc);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .user-details h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .user-details p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .container {
+            padding: 0 16px 32px;
+        }
+
+        .product-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .product-card:active {
+            transform: scale(0.98);
+        }
+
+        .product-image {
+            width: 100%;
+            aspect-ratio: 16/10;
+            object-fit: cover;
+            background: #f8f9fa;
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .product-price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00c3f7;
+            margin-bottom: 12px;
+        }
+
+        .product-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .product-details {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .product-details ul {
+            list-style: none;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .product-details li {
+            padding: 4px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .purchase-button {
+            width: 100%;
+            background: linear-gradient(135deg, #00c3f7 0%, #0099cc 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .purchase-button:active {
+            transform: scale(0.98);
+        }
+
+        .purchase-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .purchase-history {
+            margin-top: 32px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .purchase-history h2 {
+            padding: 20px;
+            background: #f8f9fa;
+            margin: 0;
+            font-size: 18px;
+            color: #333;
+            border-bottom: 1px solid #eee;
+        }
+
+        .history-list {
+            padding: 0;
+        }
+
+        .history-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-product {
+            flex: 1;
+        }
+
+        .history-name {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .history-date {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .history-price {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00c3f7;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 320px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .modal h3 {
+            margin-bottom: 16px;
+            color: #333;
+        }
+
+        .modal p {
+            margin-bottom: 20px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .modal-button.primary {
+            background: #00c3f7;
+            color: white;
+        }
+
+        .modal-button.secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .product-info {
+                padding: 16px;
+            }
+            
+            .product-name {
+                font-size: 18px;
+            }
+            
+            .product-price {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎒 レッスンバッグ販売</h1>
+        <p>ワークス英語教室公式ショップ</p>
+    </div>
+
+    <div class="user-info" id="userInfo" style="display: none;">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div class="user-details">
+            <h3 id="userName">読み込み中...</h3>
+            <p id="userEmail">メール取得中...</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="product-grid" id="productGrid">
+            <div class="loading">商品を読み込み中...</div>
+        </div>
+
+        <div class="purchase-history" id="purchaseHistory" style="display: none;">
+            <h2>📋 購入履歴</h2>
+            <div class="history-list" id="historyList">
+                <!-- 購入履歴がここに表示されます -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 購入確認モーダル -->
+    <div class="modal" id="purchaseModal">
+        <div class="modal-content">
+            <h3>購入確認</h3>
+            <p id="purchaseConfirmText">この商品を購入しますか？</p>
+            <div class="modal-buttons">
+                <button class="modal-button secondary" onclick="closePurchaseModal()">キャンセル</button>
+                <button class="modal-button primary" onclick="confirmPurchase()">購入する</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 完了モーダル -->
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <h3>🎉 購入完了</h3>
+            <p>ご購入ありがとうございました！<br>商品は1-2週間でお届け予定です。</p>
+            <div class="modal-buttons">
+                <button class="modal-button primary" onclick="closeSuccessModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 商品データ
+        const products = [
+            {
+                id: 'bag_a',
+                name: 'しまじろうレッスンバッグ',
+                price: 2980,
+                image: './sample/bag_a.png',
+                description: 'みんな大好きしまじろうと一緒に英語学習！元気いっぱいの"Let\'s enjoy English!"メッセージ入り。',
+                details: [
+                    ['サイズ', '約30×40×10cm'],
+                    ['素材', '綿100%'],
+                    ['重量', '約200g'],
+                    ['お手入れ', '手洗い可能']
+                ]
+            },
+            {
+                id: 'bag_b',
+                name: 'ワークスレッスンバッグ',
+                price: 2480,
+                image: './sample/bag_b.png',
+                description: 'シンプルで上品なワークスロゴ入りバッグ。どんなスタイルにも合わせやすいデザインです。',
+                details: [
+                    ['サイズ', '約32×42×12cm'],
+                    ['素材', 'キャンバス地'],
+                    ['重量', '約250g'],
+                    ['お手入れ', '洗濯機使用可能']
+                ]
+            }
+        ];
+
+        let currentUser = null;
+        let selectedProduct = null;
+
+        // 初期化
+        window.addEventListener('DOMContentLoaded', function() {
+            initializeWOFF();
+        });
+
+        async function initializeWOFF() {
+            try {
+                // WOFF初期化を待機
+                await new Promise(resolve => {
+                    if (typeof woff !== 'undefined') {
+                        resolve();
+                    } else {
+                        const checkWoff = setInterval(() => {
+                            if (typeof woff !== 'undefined') {
+                                clearInterval(checkWoff);
+                                resolve();
+                            }
+                        }, 100);
+                    }
+                });
+
+                // ユーザー情報取得
+                const profile = await woff.getProfile();
+                currentUser = profile;
+                displayUserInfo(profile);
+                
+                // 商品表示
+                displayProducts();
+                
+                // 購入履歴取得
+                loadPurchaseHistory();
+                
+            } catch (error) {
+                console.error('WOFF初期化エラー:', error);
+                // WOFFエラー時はダミーデータで表示
+                currentUser = {
+                    displayName: 'ゲストユーザー',
+                    email: 'guest@example.com'
+                };
+                displayUserInfo(currentUser);
+                displayProducts();
+            }
+        }
+
+        function displayUserInfo(profile) {
+            const userInfo = document.getElementById('userInfo');
+            const userName = document.getElementById('userName');
+            const userEmail = document.getElementById('userEmail');
+            const userAvatar = document.getElementById('userAvatar');
+            
+            userName.textContent = profile.displayName || 'ユーザー';
+            userEmail.textContent = profile.email || '';
+            userAvatar.textContent = (profile.displayName || 'U').charAt(0).toUpperCase();
+            
+            userInfo.style.display = 'flex';
+        }
+
+        function displayProducts() {
+            const productGrid = document.getElementById('productGrid');
+            
+            productGrid.innerHTML = products.map(product => `
+                <div class="product-card">
+                    <img src="${product.image}" alt="${product.name}" class="product-image" onerror="this.style.display='none'">
+                    <div class="product-info">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-price">¥${product.price.toLocaleString()}（税込）</div>
+                        <div class="product-description">${product.description}</div>
+                        <div class="product-details">
+                            <ul>
+                                ${product.details.map(([key, value]) => `<li><span>${key}:</span><span>${value}</span></li>`).join('')}
+                            </ul>
+                        </div>
+                        <button class="purchase-button" onclick="openPurchaseModal('${product.id}')">
+                            🛒 購入する
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openPurchaseModal(productId) {
+            selectedProduct = products.find(p => p.id === productId);
+            if (!selectedProduct) return;
+            
+            const modal = document.getElementById('purchaseModal');
+            const confirmText = document.getElementById('purchaseConfirmText');
+            
+            confirmText.innerHTML = `
+                <strong>${selectedProduct.name}</strong><br>
+                ¥${selectedProduct.price.toLocaleString()}（税込）<br><br>
+                この商品を購入しますか？
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function closePurchaseModal() {
+            document.getElementById('purchaseModal').style.display = 'none';
+            selectedProduct = null;
+        }
+
+        async function confirmPurchase() {
+            if (!selectedProduct || !currentUser) return;
+            
+            try {
+                // 購入ボタンを無効化
+                const button = document.querySelector(`button[onclick="openPurchaseModal('${selectedProduct.id}')"]`);
+                button.disabled = true;
+                button.textContent = '処理中...';
+                
+                // 購入データを準備
+                const purchaseData = {
+                    productId: selectedProduct.id,
+                    productName: selectedProduct.name,
+                    price: selectedProduct.price,
+                    userDisplayName: currentUser.displayName,
+                    userEmail: currentUser.email,
+                    purchaseDate: new Date().toISOString(),
+                    status: 'completed'
+                };
+                
+                // 購入API呼び出し（実装予定）
+                await submitPurchase(purchaseData);
+                
+                // モーダルを閉じて成功モーダルを表示
+                closePurchaseModal();
+                document.getElementById('successModal').style.display = 'flex';
+                
+                // 購入履歴を更新
+                addPurchaseToHistory(purchaseData);
+                
+            } catch (error) {
+                console.error('購入エラー:', error);
+                alert('購入処理中にエラーが発生しました。もう一度お試しください。');
+            } finally {
+                // ボタンを元に戻す
+                const button = document.querySelector(`button[onclick="openPurchaseModal('${selectedProduct.id}')"]`);
+                if (button) {
+                    button.disabled = false;
+                    button.innerHTML = '🛒 購入する';
+                }
+            }
+        }
+
+        async function submitPurchase(purchaseData) {
+            // 購入APIエンドポイント
+            const apiEndpoint = 'https://im1swit6p3.execute-api.ap-northeast-1.amazonaws.com/prod/purchase';
+            
+            const response = await fetch(apiEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(purchaseData)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            return await response.json();
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').style.display = 'none';
+        }
+
+        async function loadPurchaseHistory() {
+            if (!currentUser || !currentUser.email) return;
+            
+            try {
+                const apiEndpoint = `https://im1swit6p3.execute-api.ap-northeast-1.amazonaws.com/prod/purchase?userEmail=${encodeURIComponent(currentUser.email)}`;
+                const response = await fetch(apiEndpoint);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    displayPurchaseHistory(result.data || []);
+                } else {
+                    console.error('Failed to load purchase history:', response.statusText);
+                    displayPurchaseHistory([]);
+                }
+            } catch (error) {
+                console.error('Error loading purchase history:', error);
+                displayPurchaseHistory([]);
+            }
+        }
+
+        function displayPurchaseHistory(history) {
+            const historyContainer = document.getElementById('purchaseHistory');
+            const historyList = document.getElementById('historyList');
+            
+            if (history.length === 0) {
+                historyContainer.style.display = 'none';
+                return;
+            }
+            
+            historyList.innerHTML = history.map(item => `
+                <div class="history-item">
+                    <div class="history-product">
+                        <div class="history-name">${item.productName}</div>
+                        <div class="history-date">${new Date(item.purchaseDate).toLocaleDateString('ja-JP')}</div>
+                    </div>
+                    <div class="history-price">¥${item.price.toLocaleString()}</div>
+                </div>
+            `).join('');
+            
+            historyContainer.style.display = 'block';
+        }
+
+        function addPurchaseToHistory(purchaseData) {
+            const historyList = document.getElementById('historyList');
+            const historyContainer = document.getElementById('purchaseHistory');
+            
+            const newItem = document.createElement('div');
+            newItem.className = 'history-item';
+            newItem.innerHTML = `
+                <div class="history-product">
+                    <div class="history-name">${purchaseData.productName}</div>
+                    <div class="history-date">${new Date().toLocaleDateString('ja-JP')}</div>
+                </div>
+                <div class="history-price">¥${purchaseData.price.toLocaleString()}</div>
+            `;
+            
+            historyList.insertBefore(newItem, historyList.firstChild);
+            historyContainer.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
